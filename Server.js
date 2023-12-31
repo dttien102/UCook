@@ -60,7 +60,10 @@ app.post('/api/dishList',upload.single('image'), (req, res) => {
       console.log('Image deleted successfully');
     }
   });
-  res.status(200).json({id: id});
+
+  const matchDishes = dishes.filter(dish=>dish.ingredients.includes(id));
+
+  res.status(200).json({ingredientId: id,dishes: matchDishes});
 });
 
 app.get('/api/dishImage/:dishId', (req, res) => {
