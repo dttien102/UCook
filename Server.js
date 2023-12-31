@@ -27,7 +27,7 @@ app.get('/api/recipe/:dishId', (req, res) => {
   const recipeId = req.params.dishId;
   const recipePath = path.join(__dirname,'assets',recipeId + '.txt');
   if(fs.existsSync){
-    const recipeBuffer = fs.readFileSync(recipePath).toString;
+    const recipeBuffer = fs.readFileSync(recipePath).toString();
     console.log(recipeBuffer);
     res.json({id: req.params.dishId, recipe: recipeBuffer})
   }else{
