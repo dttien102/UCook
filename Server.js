@@ -24,7 +24,15 @@ app.get('/api/dishList/:ingredientID', (req, res) => {
 
 app.get('/api/recipe/:dishId', (req, res) => {
   // Code to fetch recipe text based on dishId
-  res.json({id: req.params.dishId, recipe: recipe})
+  const recipeId = req.params.dishId;
+  const recipePath = path.join(__dirname,'assets',recipeId + 'txt');
+  if(fs.existsSync){
+    const recipeBuffer = fs.readFileSync(recipePath);
+    res.json({id: req.params.dishId, recipe: recipeBuffer})
+  }else{
+    res.status(404).json({recipe: 'No Recipe Found'});
+  }
+  
 });
 
 // POST endpoint
