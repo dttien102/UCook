@@ -57,6 +57,16 @@ async function getIngredientIdFromImage(req) {
   return 1;
 }
 
+//base API
+app.get('/api/', function (req, res) {
+  res.send({ message: 'ucook API v1.0' });
+});
+
+//GET all dish
+app.get('/api/dishlist/', function (req, res) {
+  res.status(200).json({ dishes: dishes });
+});
+
 // GET endpoints
 app.post('/api/dishList/userInput', (req, res) => {
   // Code to fetch dish list based on ingredientID
