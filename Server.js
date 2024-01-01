@@ -154,30 +154,5 @@ app.post('/api/dishList/userInput', (req, res) => {
   const matchDishes = dishes.filter(dish=>dish.ingredients.includes(id));
   res.json({dishes: matchDishes});
 });
-
-
-app.post('/api/ingredient', upload.single('image'), async (req,res)=>{
-  try {
-    // Access the uploaded image as req.file
-    const imagePath = req.file.path;
-
-    // Use the Google Cloud Vision API to perform ingredient recognition
-    const [result] = await visionClient.labelDetection(imagePath);
-    const labels = result.labelAnnotations;
-    console.log('Labels:');
-    labels.forEach(label => console.log(label.description));
-    fs.unlink(imagePath, (err) => {
-      if (err) {
-        console.error(err); // Handle errors during deletion
-      } else {
-        console.log('Image deleted successfully');
-      }
-    });
-    res.status(200).json({labels:labels})
-  } catch (error) {
-    console.error('Error recognizing ingredients:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-})
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server listening on port ${port}`));
