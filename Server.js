@@ -22,10 +22,23 @@ const dishes = [
     { name: 'Canh cà chua', id: 3, ingredients: [1,2,3] },
     { name: 'Canh chua cá lóc', id: 4, ingredients: [1,3,4]}
   ];
+
+async function getIngredientIdFromUserInput(userInput)
+{
+  /// Process user Input here
+  return 1;
+}
+
+async function getIngredientIdFromImage(imageFile)
+{
+  /// Process the image here
+  return 1;
+}
+
 // GET endpoints
-app.get('/api/dishList/:ingredientID', (req, res) => {
+app.get('/api/dishList/:userInput', async (req, res) => {
   // Code to fetch dish list based on ingredientID
-  const id = parseInt(req.params.ingredientID);
+  const id = await getIngredientIdFromUserInput(req.params.userInput);
   const matchDishes = dishes.filter(dish=>dish.ingredients.includes(id));
   console.log("signal Get Dishes");
   res.json({dishes: matchDishes});
@@ -46,11 +59,12 @@ app.get('/api/recipe/:dishId', (req, res) => {
 });
 
 // POST endpoint
-app.post('/api/dishList',upload.single('image'), (req, res) => {
+app.post('/api/dishList',upload.single('image'), async (req, res) => {
   // Code to handle encrypted image and identify ingredientID
   
   // Process the image thru 'req.file'
-  const id = 1;
+  const id = await getIngredientIdFromImage(req.file);
+  console.log(id)
   ////
   
   fs.unlink(req.file.path, (err) => {
