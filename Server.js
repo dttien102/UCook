@@ -16,17 +16,30 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const dishes = [
-    { name: 'Cà chua sốt Cá hồi', id: 1, ingredients: [1,3,5] },
-    { name: 'Cà chua sốt mì Ý thịt bò', id: 2, ingredients: [1,2,5] },
-    { name: 'Canh cà chua', id: 3, ingredients: [1,2,3] },
-    { name: 'Canh chua cá lóc', id: 4, ingredients: [1,3,4]}
+  const dishes = [
+    { name: 'Cà chua sốt Cá hồi', id: 1, ingredients: [14, 15, 1, 16, 17, 18, 19, 9, 20] },
+    { name: 'Cà chua sốt mì Ý thịt bò', id: 2, ingredients: [5, 1, 6, 7, 8, 9, 3, 10, 11, 12, 13] },
+    { name: 'Canh cà chua trứng', id: 3, ingredients: [32, 1, 16, 2, 20, 12, 33, 34] },
+    { name: 'Canh chua cá lóc', id: 4, ingredients: [21, 22, 23, 1, 24, 25, 26, 3, 27, 28, 29, 30, 9, 8, 31, 20] }
   ];
+  
+  const ingredients = [
+    { id: 1, name: "Cà chua" }, { id: 2, name: "Hành lá" }, { id: 3, name: "Tỏi" }, { id: 4, name: "Mỳ ý" }, { id: 5, name: "Thịt bò" },
+    { id: 6, name: "Hành tây" }, { id: 7, name: "Cà rốt" }, { id: 8, name: "Muối" }, { id: 9, name: "Hạt nêm" }, { id: 10, name: "Sốt cà chua" },
+    { id: 11, name: "Bơ" }, { id: 12, name: "Hạt tiêu" }, { id: 13, name: "Húng quế" }, { id: 14, name: "Cá hồi" }, { id: 15, name: "Nước dừa" },
+    { id: 16, name: "Hành tím" }, { id: 17, name: "Ớt" }, { id: 18, name: "Rau ngò" }, { id: 19, name: "Chanh" }, { id: 20, name: "Nước mắm" },
+    { id: 21, name: "Cá lóc đồng" }, { id: 22, name: "Đậu bắp" }, { id: 23, name: "Thơm" }, { id: 24, name: "Bạc hà" }, { id: 25, name: "Me" },
+    { id: 26, name: "Giá đỗ" }, { id: 27, name: "Ớt sừng" }, { id: 28, name: "Ơt hiểm" }, { id: 29, name: "Ngò gai" }, { id: 30, name: "Ngò om" },
+    { id: 31, name: "Đường" }, { id: 32, name: "Trứng" }, { id: 33, name: "Bột ngọt" }, { id: 34, name: "Dầu ăn" }
+  ]
 
 async function getIngredientIdFromUserInput(userInput)
 {
   /// Process user Input here
-  return 1;
+  const index = ingredients.findIndex(i=>i.name === userInput);
+  if(index === -1) return -1;
+  console.log(ingredients[index]);
+  return ingredients[index].id;
 }
 
 async function getIngredientIdFromImage(req)
@@ -46,11 +59,11 @@ async function getIngredientIdFromImage(req)
 }
 
 // GET endpoints
-app.get('/api/dishList/:userInput', async (req, res) => {
+app.get('/api/dishList/userInput', async (req, res) => {
   // Code to fetch dish list based on ingredientID
-  const id = await getIngredientIdFromUserInput(req.params.userInput);
+  console.log(req.headers);
+  const id = await getIngredientIdFromUserInput(req.headers.userinput);
   const matchDishes = dishes.filter(dish=>dish.ingredients.includes(id));
-  console.log("signal Get Dishes");
   res.json({dishes: matchDishes});
 });
 
