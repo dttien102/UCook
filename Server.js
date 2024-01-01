@@ -5,7 +5,15 @@ const app = express();
 const fs = require('fs');
 const multer = require('multer');
 const bodyParser = require('body-parser');
+const { ImageAnnotatorClient } = require('@google-cloud/vision')
+
+
+
 app.use(bodyParser.json());
+
+const visionClient = new ImageAnnotatorClient({
+  keyFilename: 'ucook-409913-2eb813ef2042.json', // Replace with the path to your JSON key file
+});
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, 'uploads')); // Save images in the "uploads" folder
@@ -67,15 +75,7 @@ app.get('/api/dishlist/', function (req, res) {
   res.status(200).json({ dishes: dishes });
 });
 
-// GET endpoints
-app.post('/api/dishList/userInput', (req, res) => {
-  // Code to fetch dish list based on ingredientID
-  console.log(req.body);
-  const id = getIngredientIdFromUserInput(req.body.userinput);
-  const matchDishes = dishes.filter(dish=>dish.ingredients.includes(id));
-  res.json({dishes: matchDishes});
-});
-
+// GET endpoint
 app.get('/api/recipe/:dishId', (req, res) => {
   // Code to fetch recipe text based on dishId
   const recipeId = req.params.dishId;
@@ -88,21 +88,6 @@ app.get('/api/recipe/:dishId', (req, res) => {
     res.status(404).json({ recipe: 'No Recipe Found' });
   }
 
-});
-
-// POST endpoint
-app.post('/api/dishList', upload.single('image'), async (req, res) => {
-  // Code to handle encrypted image and identify ingredientID
-
-  // Process the image thru 'req.file'
-  const id = await getIngredientIdFromImage(req);
-  console.log(id)
-  ////
-
-
-  const matchDishes = dishes.filter(dish => dish.ingredients.includes(id));
-
-  res.status(200).json({ ingredientId: id, dishes: matchDishes });
 });
 
 app.get('/api/dishImage/:dishId', (req, res) => {
@@ -123,5 +108,53 @@ app.get('/api/dishImage/:dishId', (req, res) => {
   }
 });
 
+// POST endpoint
+app.post('/api/dishList', upload.single('image'), async (req, res) => {
+  // Code to handle encrypted image and identify ingredientID
+
+  // Process the image thru 'req.file'
+  const id = await getIngredientIdFromImage(req);
+  console.log(id)
+  ////
+
+
+  const matchDishes = dishes.filter(dish => dish.ingredients.includes(id));
+
+  res.status(200).json({ ingredientId: id, dishes: matchDishes });
+});
+
+
+app.post('/api/dishList/userInput', (req, res) => {
+  // Code to fetch dish list based on ingredientID
+  console.log(req.body);
+  const id = getIngredientIdFromUserInput(req.body.userinput);
+  const matchDishes = dishes.filter(dish=>dish.ingredients.includes(id));
+  res.json({dishes: matchDishes});
+});
+
+
+app.post('/api/ingredient', upload.single('image'), async (req,res)=>{
+  try {
+    // Access the uploaded image as req.file
+    const imagePath = req.file.path;
+
+    // Use the Google Cloud Vision API to perform ingredient recognition
+    const [result] = await visionClient.labelDetection(imagePath);
+    const labels = result.labelAnnotations;
+    console.log('Labels:');
+    labels.forEach(label => console.log(label.description));
+    fs.unlink(imagePath, (err) => {
+      if (err) {
+        console.error(err); // Handle errors during deletion
+      } else {
+        console.log('Image deleted successfully');
+      }
+    });
+    res.status(200).json({labels:labels})
+  } catch (error) {
+    console.error('Error recognizing ingredients:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+})
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server listening on port ${port}`));
