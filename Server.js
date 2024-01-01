@@ -4,7 +4,8 @@ const path = require('path');
 const app = express();
 const fs = require('fs');
 const multer = require('multer');
-
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, 'uploads')); // Save images in the "uploads" folder
@@ -33,7 +34,7 @@ const upload = multer({ storage: storage });
     { id: 31, name: "Đường" }, { id: 32, name: "Trứng" }, { id: 33, name: "Bột ngọt" }, { id: 34, name: "Dầu ăn" }
   ]
 
-async function getIngredientIdFromUserInput(userInput)
+function getIngredientIdFromUserInput(userInput)
 {
   /// Process user Input here
   const index = ingredients.findIndex(i=>i.name === userInput);
@@ -59,10 +60,10 @@ async function getIngredientIdFromImage(req)
 }
 
 // GET endpoints
-app.get('/api/dishList/userInput', async (req, res) => {
+app.post('/api/dishList/userInput', (req, res) => {
   // Code to fetch dish list based on ingredientID
-  console.log(req.headers);
-  const id = await getIngredientIdFromUserInput(req.headers.userinput);
+  console.log(req.body);
+  const id = getIngredientIdFromUserInput(req.body.userinput);
   const matchDishes = dishes.filter(dish=>dish.ingredients.includes(id));
   res.json({dishes: matchDishes});
 });
