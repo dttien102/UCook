@@ -36,7 +36,7 @@ const ingredients = [
 
 function getIngredientIdFromUserInput(userInput) {
   /// Process user Input here
-  const index = ingredients.findIndex(i => i.name === userInput);
+  const index = ingredients.findIndex(i => i.name.toLowerCase() === userInput.toLowerCase());
   if (index === -1) return -1;
   console.log(ingredients[index]);
   return ingredients[index].id;
