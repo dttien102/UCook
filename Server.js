@@ -33,18 +33,33 @@ const dishes = [
 ];
 
 const ingredients = [
-  { id: 1, name: "Cà chua" }, { id: 2, name: "Hành lá" }, { id: 3, name: "Tỏi" }, { id: 4, name: "Mỳ ý" }, { id: 5, name: "Thịt bò" },
-  { id: 6, name: "Hành tây" }, { id: 7, name: "Cà rốt" }, { id: 8, name: "Muối" }, { id: 9, name: "Hạt nêm" }, { id: 10, name: "Sốt cà chua" },
-  { id: 11, name: "Bơ" }, { id: 12, name: "Hạt tiêu" }, { id: 13, name: "Húng quế" }, { id: 14, name: "Cá hồi" }, { id: 15, name: "Nước dừa" },
-  { id: 16, name: "Hành tím" }, { id: 17, name: "Ớt" }, { id: 18, name: "Rau ngò" }, { id: 19, name: "Chanh" }, { id: 20, name: "Nước mắm" },
-  { id: 21, name: "Cá lóc đồng" }, { id: 22, name: "Đậu bắp" }, { id: 23, name: "Thơm" }, { id: 24, name: "Bạc hà" }, { id: 25, name: "Me" },
-  { id: 26, name: "Giá đỗ" }, { id: 27, name: "Ớt sừng" }, { id: 28, name: "Ơt hiểm" }, { id: 29, name: "Ngò gai" }, { id: 30, name: "Ngò om" },
-  { id: 31, name: "Đường" }, { id: 32, name: "Trứng" }, { id: 33, name: "Bột ngọt" }, { id: 34, name: "Dầu ăn" }
+  { id: 1, names: ["Cà chua","tomato"] }, { id: 2, names: ["Hành lá", "scalion"] }, { id: 3, names: ["Tỏi","garlic"] }, { id: 4, names: ["Mỳ ý","pasta","spaghetti"] }, { id: 5, names: ["Thịt bò", "beef"] },
+  { id: 6, names: ["Hành tây","onion"] }, { id: 7, names: ["Cà rốt","carrot"] }, { id: 8, names: ["Muối","salt"] }, { id: 9, names: ["Hạt nêm","broth mix","seasoning powder"] }, { id: 10, names: ["Sốt cà chua","ketchup"] },
+  { id: 11, names: ["Bơ","butter"] }, { id: 12, names: ["Hạt tiêu","pepper","pepper corn","black pepper"] }, { id: 13, names: ["Húng quế","basil"] }, { id: 14, names: ["Cá hồi","salmon"] }, { id: 15, names: ["Nước dừa","coconut water"] },
+  { id: 16, names: ["Hành tím","shallot"] }, { id: 17, names: ["Ớt","chilli"] }, { id: 18, names: ["Rau ngò","cilantro"] }, { id: 19, names: ["Chanh","lemon","lime"] }, { id: 20, names: ["Nước mắm","fish sauce"] },
+  { id: 21, names: ["Cá lóc đồng","snake head"] }, { id: 22, names: ["Đậu bắp","okra"] }, { id: 23, names: ["Thơm","pineapple","pine-apple"] }, { id: 24, names: ["Bạc hà","mint"] }, { id: 25, names: ["Me","tamarind"] },
+  { id: 26, names: ["Giá đỗ","bean sprout"] }, { id: 27, names: ["Ớt sừng","goat horn pepper","horn pepper"] }, { id: 28, names: ["Ơt hiểm","Bird's eye chili"] }, { id: 29, names: ["Ngò gai","Sawleaf","culantro"] }, { id: 30, names: ["Ngò om","rice paddy herb"] },
+  { id: 31, names: ["Đường","sugar"] }, { id: 32, names: ["Trứng","egg","eggs"] }, { id: 33, names: ["Bột ngọt","msg","Monosodium glutamate"] }, { id: 34, names: ["Dầu ăn","oil","cooking oil"] }
 ]
+
+function findElementIndexByString(data, searchString) {
+  console.log(searchString);
+  for (let i = 0; i < data.length; i++) {
+    const namesArray = data[i].names;
+    
+    if (namesArray) {
+      const index = namesArray.findIndex(name => name.toLowerCase() === searchString.toLowerCase());
+      if(index== -1) continue;
+      return i; // Return the index if the names array contains the search string
+    }
+  }
+
+  return -1; // Return -1 if no match is found
+}
 
 function getIngredientIdFromUserInput(userInput) {
   /// Process user Input here
-  const index = ingredients.findIndex(i => i.name.toLowerCase() === userInput.toLowerCase());
+  const index = findElementIndexByString(ingredients,userInput);
   if (index === -1) return -1;
   console.log(ingredients[index]);
   return ingredients[index].id;
@@ -52,8 +67,15 @@ function getIngredientIdFromUserInput(userInput) {
 
 async function getIngredientIdFromImage(req) {
   /// Process the image here
-
-
+  const [result] = await visionClient.labelDetection(req.file.path);
+  const labels = result.labelAnnotations;
+  let index = -1;
+  for(let i = 0; i < labels.length; i++){
+    const findResult = findElementIndexByString(ingredients,labels[i].description);
+    if(findResult == -1) continue;
+    index = findResult;
+    break;
+  }
   /// Delete after processing
   fs.unlink(req.file.path, (err) => {
     if (err) {
@@ -62,7 +84,8 @@ async function getIngredientIdFromImage(req) {
       console.log('Image deleted successfully');
     }
   });
-  return 1;
+  if(index == -1) return -1;
+  return ingredients[index].id;
 }
 
 //base API
