@@ -29,9 +29,19 @@ async function getIngredientIdFromUserInput(userInput)
   return 1;
 }
 
-async function getIngredientIdFromImage(imageFile)
+async function getIngredientIdFromImage(req)
 {
   /// Process the image here
+
+
+  /// Delete after processing
+  fs.unlink(req.file.path, (err) => {
+    if (err) {
+      console.error(err); // Handle errors during deletion
+    } else {
+      console.log('Image deleted successfully');
+    }
+  });
   return 1;
 }
 
@@ -63,17 +73,10 @@ app.post('/api/dishList',upload.single('image'), async (req, res) => {
   // Code to handle encrypted image and identify ingredientID
   
   // Process the image thru 'req.file'
-  const id = await getIngredientIdFromImage(req.file);
+  const id = await getIngredientIdFromImage(req);
   console.log(id)
   ////
   
-  fs.unlink(req.file.path, (err) => {
-    if (err) {
-      console.error(err); // Handle errors during deletion
-    } else {
-      console.log('Image deleted successfully');
-    }
-  });
 
   const matchDishes = dishes.filter(dish=>dish.ingredients.includes(id));
 
